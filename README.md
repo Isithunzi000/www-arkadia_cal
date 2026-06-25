@@ -4,7 +4,7 @@ Rozszerzenie Chrome: kalendarz **Imperium** i **Ishtar** dla oficjalnego klienta
 
 ## Instalacja
 
-1. Pobierz [arkadia_cal.zip](https://isithunzi000.github.io/www-arkadia_cal/arkadia_cal.zip)
+1. Pobierz [arkadia_cal_latest.zip](https://isithunzi000.github.io/www-arkadia_cal/arkadia_cal_latest.zip)
 2. Rozpakuj ZIP do dowolnego folderu
 3. W Chrome: `chrome://extensions/` → włącz **Tryb deweloperski** → **Wczytaj rozpakowany** → wskaż folder
 

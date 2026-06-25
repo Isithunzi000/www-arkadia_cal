@@ -34,16 +34,17 @@ var latestZip = zips[0];
 var vParts    = parseVersion(latestZip);
 var version   = vParts.join('.');
 
-fs.copyFileSync(path.join(RELEASES, latestZip), path.join(DIST, 'arkadia_cal.zip'));
+fs.copyFileSync(path.join(RELEASES, latestZip), path.join(DIST, latestZip));
+fs.copyFileSync(path.join(RELEASES, latestZip), path.join(DIST, 'arkadia_cal_latest.zip'));
 
 var index = {
   built:   new Date().toISOString(),
   version: version,
-  zip:     'arkadia_cal.zip',
+  zip:     latestZip,
 };
 
 fs.writeFileSync(path.join(DIST, 'index.json'), JSON.stringify(index, null, 2));
 
-console.log('Gotowe: ' + latestZip + ' -> dist/arkadia_cal.zip');
+console.log('Gotowe: ' + latestZip + ' -> dist/' + latestZip + ' + dist/arkadia_cal_latest.zip');
 console.log('index.json: version=' + version);
 fs.readdirSync(DIST).forEach(function (f) { console.log('  dist/' + f); });
