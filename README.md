@@ -40,7 +40,6 @@ z przyciskiem do pobrania nowego ZIP.
 
 ## Techniczne
 
-- Wersja: 1.8.11
 - Logika kalendarza 1:1 z pluginami Dargoth (imperium_cal, ishtar_cal)
 - Anchor zapisywany w localStorage po każdym odczycie `czas`
 - Ekstrapolacja z anchora przy kolejnych wywołaniach
