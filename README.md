@@ -4,9 +4,17 @@ Rozszerzenie Chrome: kalendarz **Imperium** i **Ishtar** dla oficjalnego klienta
 
 ## Instalacja
 
-1. Pobierz [arkadia_cal_latest.zip](https://isithunzi000.github.io/www-arkadia_cal/arkadia_cal_latest.zip)
-2. Rozpakuj ZIP do dowolnego folderu
-3. W Chrome: `chrome://extensions/` → włącz **Tryb deweloperski** → **Wczytaj rozpakowany** → wskaż folder
+1. Pobierz [arkadia_cal.zip](https://isithunzi000.github.io/www-arkadia_cal/arkadia_cal.zip)
+2. Rozpakuj ZIP — powstanie folder `arkadia_cal`
+3. W Chrome: `chrome://extensions/` → włącz **Tryb deweloperski** → **Wczytaj rozpakowany** → wskaż folder `arkadia_cal`
+
+## Aktualizacja
+
+1. Pobierz nowy [arkadia_cal.zip](https://isithunzi000.github.io/www-arkadia_cal/arkadia_cal.zip)
+2. Rozpakuj do **tego samego folderu** `arkadia_cal` (nadpisz pliki)
+3. W Chrome: `chrome://extensions/` → kliknij **↺** na rozszerzeniu arkadia_cal
+
+Rozszerzenie automatycznie sprawdza dostępność nowej wersji i wyświetla powiadomienie.
 
 ## Komendy
 
@@ -31,12 +39,6 @@ Rozszerzenie Chrome: kalendarz **Imperium** i **Ishtar** dla oficjalnego klienta
 - Imbaelk, Lammas
 - Pełnia księżyca (okno 2 dni)
 - Festyn w Eysenlaan (2 najbliższe wystąpienia)
-
-## Aktualizacja
-
-Rozszerzenie sprawdza dostępność nowej wersji przy każdym załadowaniu strony.
-Jeśli dostępna jest aktualizacja, pojawia się powiadomienie w prawym dolnym rogu
-z przyciskiem do pobrania nowego ZIP.
 
 ## Techniczne
 
