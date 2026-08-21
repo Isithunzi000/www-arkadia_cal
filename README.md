@@ -1,22 +1,22 @@
 # arkadia_cal
 
-Rozszerzenie Chrome: kalendarz **Imperium** i **Ishtar** dla oficjalnego klienta Arkadii (arkadia.rpg.pl).
+Rozszerzenie Chrome: kalendarz **Imperium** i **Ishtar** dla oficjalnego klienta [arkadia.rpg.pl](https://arkadia.rpg.pl).
 
 ## Instalacja
 
 1. Pobierz [arkadia_cal.zip](https://isithunzi000.github.io/www-arkadia_cal/arkadia_cal.zip)
 2. Rozpakuj ZIP — powstanie folder `arkadia_cal`
-3. W Chrome: `chrome://extensions/` → włącz **Tryb deweloperski** → **Wczytaj rozpakowany** → wskaż folder `arkadia_cal`
+3. Chrome: `chrome://extensions/` → włącz **Tryb deweloperski** → **Wczytaj rozpakowany** → wskaż folder `arkadia_cal`
 
 ## Aktualizacja
 
+Rozszerzenie samo sprawdza dostępność nowej wersji i wyświetla powiadomienie.
+
 1. Pobierz nowy [arkadia_cal.zip](https://isithunzi000.github.io/www-arkadia_cal/arkadia_cal.zip)
 2. Rozpakuj do **tego samego folderu** `arkadia_cal` (nadpisz pliki)
-3. W Chrome: `chrome://extensions/` → kliknij **↺** na rozszerzeniu arkadia_cal
+3. Chrome: `chrome://extensions/` → kliknij **↺** na rozszerzeniu arkadia_cal
 
-Rozszerzenie automatycznie sprawdza dostępność nowej wersji i wyświetla powiadomienie.
-
-## Komendy
+## Użycie
 
 | Komenda | Opis |
 |---|---|
@@ -25,7 +25,7 @@ Rozszerzenie automatycznie sprawdza dostępność nowej wersji i wyświetla powi
 | `/ishtar` | Kalendarz Ishtar |
 | `/ishtar help` | Pomoc Ishtar |
 
-## Co pokazuje
+### Co pokazuje
 
 **Imperium** (`/imperium`):
 - Najbliższy nów i pełnia Mannslieba z datami RL
@@ -40,7 +40,7 @@ Rozszerzenie automatycznie sprawdza dostępność nowej wersji i wyświetla powi
 - Pełnia księżyca (okno 2 dni)
 - Festyn w Eysenlaan (2 najbliższe wystąpienia)
 
-## Techniczne
+### Techniczne
 
 - Logika kalendarza 1:1 z pluginami Dargoth (imperium_cal, ishtar_cal)
 - Anchor zapisywany w localStorage po każdym odczycie `czas`
