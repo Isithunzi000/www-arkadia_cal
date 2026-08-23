@@ -43,5 +43,9 @@ Rozszerzenie samo sprawdza dostępność nowej wersji i wyświetla powiadomienie
 ### Techniczne
 
 - Logika kalendarza 1:1 z pluginami Dargoth (imperium_cal, ishtar_cal)
-- Anchor zapisywany w localStorage po każdym odczycie `czas`
-- Ekstrapolacja z anchora przy kolejnych wywołaniach
+- Data zapisuje się w localStorage przy odczycie z komendy `/imperium` lub `/ishtar` i przeżywa restart przeglądarki
+- Gdy odczyt `czas` się nie powiedzie albo postać jest w innej domenie, plugin liczy z zapisanej daty (i mówi o tym), a gdy jej nie ma — wyświetla komunikat
+
+## Dla maintainera
+
+Nowa wersja: edytuj `cal.js` i `manifest.json` (źródła to zawartość najnowszego zipa w `releases/`), potem `python3 scripts/make_release_zip.py <katalog_źródłowy> X.Y.Z` → commit z nowym zipem w `releases/` → push. Workflow Pages sam buduje `dist/` i `index.json` — odpala się wyłącznie przy zmianie `releases/*.zip` (push README czy skryptów go nie rusza). Build jest deterministyczny: te same źródła = identyczny SHA-256 zipa.
