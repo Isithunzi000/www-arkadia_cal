@@ -22,8 +22,10 @@ Rozszerzenie samo sprawdza dostępność nowej wersji i wyświetla powiadomienie
 |---|---|
 | `/imperium` | Kalendarz Imperium |
 | `/imperium help` | Pomoc Imperium |
+| `/imperium reset` | Czyści zapamiętaną datę Imperium |
 | `/ishtar` | Kalendarz Ishtar |
 | `/ishtar help` | Pomoc Ishtar |
+| `/ishtar reset` | Czyści zapamiętaną datę Ishtar |
 
 ### Co pokazuje
 
@@ -43,7 +45,7 @@ Rozszerzenie samo sprawdza dostępność nowej wersji i wyświetla powiadomienie
 ### Techniczne
 
 - Logika kalendarza 1:1 z pluginami Dargoth (imperium_cal, ishtar_cal)
-- Data zapisuje się w localStorage przy odczycie z komendy `/imperium` lub `/ishtar` i przeżywa restart przeglądarki
+- Data zapisuje się w localStorage przy odczycie z komendy `/imperium` lub `/ishtar` i przeżywa restart przeglądarki; odnawia się też pasywnie z każdej poprawnej odpowiedzi serwera na `czas` (bez raportu i bez ukrywania linii)
 - Gdy odczyt `czas` się nie powiedzie albo postać jest w innej domenie, plugin liczy z zapisanej daty (i mówi o tym), a gdy jej nie ma — wyświetla komunikat
 
 ## Dla maintainera
