@@ -17,6 +17,7 @@ Przyklad (nowa wersja 1.0.9):
 """
 import hashlib
 import os
+import re
 import sys
 import zipfile
 
@@ -59,7 +60,7 @@ def main():
     if len(sys.argv) != 3:
         raise SystemExit(__doc__)
     src_root, version = sys.argv[1], sys.argv[2]
-    if not version.replace(".", "").isdigit():
+    if not re.fullmatch(r"\d+\.\d+\.\d+", version):
         raise SystemExit("BLAD: wersja ma byc w formacie X.Y.Z, dostalem: " + version)
     here = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     out = os.path.join(here, "releases", PKG + "_" + version.replace(".", "_") + ".zip")

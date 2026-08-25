@@ -9,16 +9,28 @@ const DIST     = path.join(__dirname, '..', 'dist');
 
 fs.mkdirSync(DIST, { recursive: true });
 
-const zips = fs.readdirSync(RELEASES).filter(function (f) { return f.endsWith('.zip'); });
-if (!zips.length) {
-  console.log('Brak zipow w releases/');
-  process.exit(0);
+const allZips = fs.readdirSync(RELEASES).filter(function (f) { return f.endsWith('.zip'); });
+if (!allZips.length) {
+  console.error('BLAD: brak zipow w releases/ — pustego dist/ nie wolno publikowac');
+  process.exit(1);
 }
 
 function parseVersion(filename) {
   var m = filename.match(/_(\d+)_(\d+)_(\d+)\.zip$/);
-  if (!m) return [0, 0, 0];
+  if (!m) return null;
   return [Number(m[1]), Number(m[2]), Number(m[3])];
+}
+
+var zips = allZips.filter(function (f) {
+  if (!parseVersion(f)) {
+    console.error('POMINIETY (nieparsowalna nazwa): ' + f);
+    return false;
+  }
+  return true;
+});
+if (!zips.length) {
+  console.error('BLAD: zaden zip w releases/ nie ma parsowalnej wersji');
+  process.exit(1);
 }
 
 function versionCmp(a, b) {
