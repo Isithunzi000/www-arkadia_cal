@@ -46,6 +46,27 @@ var latestZip = zips[0];
 var vParts    = parseVersion(latestZip);
 var version   = vParts.join('.');
 
+// Guard spojnosci wersji (B2): nazwa zipa == EXT_VERSION w zrodle ==
+// version w manifest.json. Zle nazwany zip nie moze wdrozyc sie po cichu
+// pod blednym numerem - mismatch przerywa build.
+function unzipText(zipFile, entry) {
+  return require('child_process').execSync(
+    'unzip -p "' + path.join(RELEASES, zipFile) + '" "' + entry + '"',
+    { encoding: 'utf8' });
+}
+
+var pkgDir  = 'arkadia_cal';
+var srcText = unzipText(latestZip, pkgDir + '/cal.js');
+var mExt    = srcText.match(/var EXT_VERSION\s*=\s*'([^']+)'/);
+var manVer  = JSON.parse(unzipText(latestZip, pkgDir + '/manifest.json')).version;
+var extVer  = mExt && mExt[1];
+if (extVer !== version || manVer !== version) {
+  console.error('BLAD: niespojnosc wersji w ' + latestZip +
+    ': nazwa=' + version + ' EXT_VERSION=' + extVer + ' manifest=' + manVer);
+  process.exit(1);
+}
+console.log('Guard wersji OK: ' + version);
+
 fs.copyFileSync(path.join(RELEASES, latestZip), path.join(DIST, latestZip));
 fs.copyFileSync(path.join(RELEASES, latestZip), path.join(DIST, 'arkadia_cal.zip'));
 
