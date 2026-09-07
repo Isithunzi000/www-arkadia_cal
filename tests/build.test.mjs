@@ -13,6 +13,28 @@ import { fileURLToPath } from 'node:url';
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const PKG = 'arkadia_cal';
 
+// Prawdziwy zip zgodny z guardem wersji w build.js: nazwa zipa ==
+// EXT_VERSION (cal.js) == manifest.version. Zipy bez parsowalnej wersji
+// w nazwie zostaja fake (build.js pomija je przed jakimkolwiek odczytem).
+function makeGoodZip(root, name) {
+  const ver = name.match(/_(\d+)_(\d+)_(\d+)\.zip$/);
+  if (!ver) {
+    fs.writeFileSync(path.join(root, 'releases', name), 'fake-zip');
+    return;
+  }
+  const v = ver.slice(1).join('.');
+  const calJs = `// ${PKG} v${v} | 01-01-2020\nvar EXT_VERSION = '${v}';\nvar EXT_DATE    = '01-01-2020';\n`;
+  const man = JSON.stringify({ version: v });
+  const r = spawnSync('python3', [
+    '-c',
+    'import sys, zipfile; zf = zipfile.ZipFile(sys.argv[1], "w"); ' +
+      'zf.writestr(sys.argv[2] + "/cal.js", sys.argv[3]); ' +
+      'zf.writestr(sys.argv[2] + "/manifest.json", sys.argv[4]); zf.close()',
+    path.join(root, 'releases', name), PKG, calJs, man,
+  ]);
+  assert.equal(r.status, 0, 'nie udalo sie zlozyc fixture-zipa');
+}
+
 function makeFixture(zipNames) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'cal-build-'));
   fs.mkdirSync(path.join(root, 'scripts'), { recursive: true });
@@ -22,7 +44,7 @@ function makeFixture(zipNames) {
     path.join(REPO, 'scripts', 'make_release_zip.py'),
     path.join(root, 'scripts', 'make_release_zip.py')
   );
-  for (const z of zipNames) fs.writeFileSync(path.join(root, 'releases', z), 'fake-zip');
+  for (const z of zipNames) makeGoodZip(root, z);
   return root;
 }
 
