@@ -50,4 +50,6 @@ Rozszerzenie samo sprawdza dostępność nowej wersji i wyświetla powiadomienie
 
 ## Dla maintainera
 
-Nowa wersja: edytuj `cal.js` i `manifest.json` (źródła to zawartość najnowszego zipa w `releases/`), potem `python3 scripts/make_release_zip.py <katalog_źródłowy> X.Y.Z` → commit z nowym zipem w `releases/` → push. Workflow Pages sam buduje `dist/` i `index.json` — odpala się wyłącznie przy zmianie `releases/*.zip` (push README czy skryptów go nie rusza). Build jest deterministyczny: te same źródła = identyczny SHA-256 zipa.
+Źródła leżą w `src/arkadia_cal/` (`cal.js` + `manifest.json`) — są bajtowo identyczne z zawartością najnowszego zipa w `releases/` (pilnuje tego test `src-spojnosc` w repo arkadia-dargoth-testy).
+
+Nowa wersja: edytuj źródła w `src/arkadia_cal/`, potem `python3 scripts/make_release_zip.py src X.Y.Z` → **jeden commit** ze zmianą w `src/` i nowym zipem w `releases/` → push. Workflow Pages sam buduje `dist/` i `index.json` — odpala się wyłącznie przy zmianie `releases/*.zip` (push `src/`, README czy skryptów go nie rusza). Build jest deterministyczny: te same źródła = identyczny SHA-256 zipa.

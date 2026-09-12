@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "arkadia_cal",
+  "version": "1.0.12",
+  "description": "Kalendarz Imperium + Ishtar dla oficjalnego klienta arkadia.rpg.pl",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://arkadia.rpg.pl/*"
+      ],
+      "js": [
+        "cal.js"
+      ],
+      "world": "MAIN",
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": [
+    "https://arkadia.rpg.pl/*",
+    "https://isithunzi000.github.io/*"
+  ]
+}
