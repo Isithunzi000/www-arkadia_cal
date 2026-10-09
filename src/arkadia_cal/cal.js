@@ -1,4 +1,4 @@
-// arkadia_cal v1.0.12 | 07-09-2026
+// arkadia_cal v1.0.13 | 09-10-2026
 // Kalendarz Imperium + Ishtar dla oficjalnego klienta arkadia.rpg.pl
 
 (function () {
@@ -12,8 +12,8 @@
     return;
   }
 
-  var EXT_VERSION = '1.0.12';
-  var EXT_DATE    = '07-09-2026';
+  var EXT_VERSION = '1.0.13';
+  var EXT_DATE    = '09-10-2026';
   var UPDATE_URL  = 'https://isithunzi000.github.io/www-arkadia_cal/index.json';
 
   // =========================================================================
@@ -204,7 +204,9 @@
   // przegladarki gracza i od zmiany czasu letni/zimowy.
   var IMP_GN_WINDOW_START_MIN = 19 * 60;
   var IMP_GN_WINDOW_END_MIN   = 21 * 60;
-  var IMP_GN_PRIME_MIN        = 20 * 60;
+  // Prime 20:50 (1250): dane empiryczne 10.2026 - dwie obserwacje
+  // zachodu Mannslieba 20:55 i 20:45 RL. Kanon v3, paritet z dargoth 1.8.27.
+  var IMP_GN_PRIME_MIN        = 1250;
   var IMP_GN_SCAN_YEARS       = 4;
   var IMP_GN_CLUSTER_MS       = 180 * 60 * 1000;
 
@@ -383,22 +385,13 @@
     var newMoons  = impToSortedDoyList(IMP_NEW_MOONS);
     var fullMoons = impToSortedDoyList(IMP_FULL_MOONS);
     if (!newMoons.length || !fullMoons.length) return null;
-    var nmToIdx = new Map();
-    IMP_NEW_MOONS.forEach(function (md, i) {
-      var d = impDoyFromMonthDay(md.month, md.dayOfMonth);
-      if (typeof d === 'number') nmToIdx.set(impNormDoy(d), i);
-    });
-    for (var n = 0; n < newMoons.length; n++) {
-      if (!nmToIdx.has(newMoons[n])) return null;
-    }
-    return { newMoons: newMoons, fullMoons: fullMoons, nmToIdx: nmToIdx };
+    return { newMoons: newMoons, fullMoons: fullMoons };
   }
 
   var IMP_SANITY       = impComputeSanity();
   var IMP_OK           = Boolean(IMP_SANITY);
   var IMP_NEW_MOONS_DOY  = IMP_SANITY ? IMP_SANITY.newMoons  : [];
   var IMP_FULL_MOONS_DOY = IMP_SANITY ? IMP_SANITY.fullMoons : [];
-  var IMP_NM_TO_IDX      = IMP_SANITY ? IMP_SANITY.nmToIdx   : new Map();
 
   // --- Report building ---
 
@@ -445,8 +438,9 @@
       var f = IMP_GN_FULLS[fi];
       var fdoy = impDoyFromMonthDay(f.month, f.dayOfMonth);
       if (typeof fdoy !== 'number') continue;
-      // Noc Geheimnisnacht = sama noc pelni (offset 0 dni).
-      var gnDoy      = impNormDoy(fdoy);
+      // Noc Geheimnisnacht = nastepna noc po pelni (offset +1 doba),
+      // zgodnie z kanonem v3 (dane empiryczne 10.2026, paritet dargoth 1.8.27).
+      var gnDoy      = impNormDoy(fdoy + 1);
       var gnSunsetH  = impSunsetH(gnDoy);
       var gnSunriseH = impSunriseH(impNormDoy(gnDoy + 1));
       var nightDur   = (24 - gnSunsetH + gnSunriseH) * 60;
@@ -473,6 +467,46 @@
       if (!best || c.dist < best.dist || (c.dist === best.dist && c.realMs < best.realMs)) best = c;
     });
     return best ? { trwa: false, deltaMin: best.deltaMin, nightDoy: best.nightDoy } : null;
+  }
+
+  // Now: moment fazowy = 03:00 IG doby nastepujacej po dobie z tabeli
+  // NEW_MOONS (dane empiryczne 10.2026; kanon v3, paritet dargoth 1.8.27).
+  var IMP_NEW_MOON_FLIP_HOUR = 3;
+
+  // Pierwsza bezksiezycowa noc: [zachod(d+1), wschod(d+2)]. Lustro
+  // golden ref_now_night: TRWA gdy start miniej niz nightDuration temu
+  // (delta zawinela sie przez koniec roku); start/koniec wylaczne.
+  function impComputeNewMoonNight(now, nowReal) {
+    var yearMin = IMP_YEAR_LENGTH_DAYS * IMP_GAME_MINUTES_PER_DAY;
+    var best = null;
+    for (var i = 0; i < IMP_NEW_MOONS_DOY.length; i++) {
+      var d = IMP_NEW_MOONS_DOY[i];
+      var nightDoy = impNormDoy(d + 1);
+      var sunsetH = impSunsetH(nightDoy);
+      var sunriseH = impSunriseH(impNormDoy(nightDoy + 1));
+      var nightDuration = (24 - sunsetH + sunriseH) * 60;
+      var baseDelta = impDeltaMin(now, { dayOfYear: nightDoy, hour: sunsetH, minute: 0 });
+      if (baseDelta > yearMin - nightDuration && baseDelta < yearMin) {
+        return { trwa: true, deltaMin: baseDelta - (yearMin - nightDuration), nightDoy: nightDoy };
+      }
+      if (best === null || baseDelta < best.deltaMin) {
+        best = { deltaMin: baseDelta, nightDoy: nightDoy };
+      }
+    }
+    return { trwa: false, deltaMin: best.deltaMin, nightDoy: best.nightDoy };
+  }
+
+  // Lustro golden ref_now_flip: minimum delty IG do (d+1, 03:00).
+  function impComputeNewMoonFlip(now, nowReal) {
+    var best = null;
+    for (var i = 0; i < IMP_NEW_MOONS_DOY.length; i++) {
+      var flipDoy = impNormDoy(IMP_NEW_MOONS_DOY[i] + 1);
+      var baseDelta = impDeltaMin(now, { dayOfYear: flipDoy, hour: IMP_NEW_MOON_FLIP_HOUR, minute: 0 });
+      if (best === null || baseDelta < best.deltaMin) {
+        best = { deltaMin: baseDelta, doy: flipDoy };
+      }
+    }
+    return best;
   }
 
   function impBuildReport(nowRaw) {
@@ -523,40 +557,30 @@
 
     lines.push('');
     lines.push('Najblizsze wydarzenia ksiezycowe:');
-    var nowDoy = impNormDoy(now.dayOfYear);
 
-    if (IMP_NM_TO_IDX.has(nowDoy)) {
-      var sunsetH = impSunsetH(nowDoy);
-      lines.push('  *** Now astronomiczny ***');
-      impPushTiming(lines, now, nowReal, nowDoy);
-      if (now.hour >= sunsetH) {
-        var minsToEnd = (24 - now.hour) * 60 - now.minute;
-        lines.push('  +++ Now widoczny TERAZ +++');
-        lines.push('    TRWA TERAZ (do ' + formatRealDate(new Date(nowReal.getTime() + minsToEnd * IMP_REAL_MS_PER_GAME_MINUTE)) + ')');
-        lines.push('    Zachod:  ' + pad2(sunsetH) + ':00 IG');
-      } else {
-        var toSunset = (sunsetH - now.hour) * 60 - now.minute;
-        lines.push('  +++ Now widoczny dzis po zachodzie slonca +++');
-        lines.push('    Data RL: ' + formatRealDate(new Date(nowReal.getTime() + toSunset * IMP_REAL_MS_PER_GAME_MINUTE)));
-        lines.push('    Zachod:  ' + pad2(sunsetH) + ':00 IG');
-        lines.push('    Za:      ' + impFormatDelta(toSunset));
-      }
+    // Now: moment fazowy = 03:00 IG doby nastepujacej po dobie z tabeli
+    // NEW_MOONS (kanon v3, dane empiryczne 10.2026).
+    var flip = impComputeNewMoonFlip(now, nowReal);
+    var flipReal = new Date(nowReal.getTime() + flip.deltaMin * IMP_REAL_MS_PER_GAME_MINUTE);
+    lines.push('  *** Now astronomiczny ***');
+    lines.push('    Data RL: ' + formatRealDate(flipReal));
+    lines.push('    Za:      ' + impFormatDelta(flip.deltaMin));
+
+    // Pierwsza bezksiezycowa noc: [zachod(d+1), wschod(d+2)].
+    var nn = impComputeNewMoonNight(now, nowReal);
+    var nnMd = impMonthDayFromDoy(nn.nightDoy);
+    var nnLabel = nnMd ? nnMd.month + ' ' + nnMd.dayOfMonth + ', dzien ' + nn.nightDoy : 'dzien ' + nn.nightDoy;
+    lines.push('  +++ Now widoczny (pierwsza bezksiezycowa noc) +++');
+    if (nn.trwa) {
+      lines.push('    TRWA TERAZ (do ' + formatRealDate(new Date(nowReal.getTime() + nn.deltaMin * IMP_REAL_MS_PER_GAME_MINUTE)) + ')');
+      lines.push('    ' + nnLabel);
     } else {
-      var newDoy = impNextFromList(now, IMP_NEW_MOONS_DOY);
-      var dm     = impDeltaMin(now, { dayOfYear: newDoy, hour: 0, minute: 0 });
-      lines.push('  *** Now astronomiczny ***');
-      lines.push('    Data RL: ' + formatRealDate(new Date(nowReal.getTime() + dm * IMP_REAL_MS_PER_GAME_MINUTE)));
-      lines.push('    Za:      ' + impFormatDelta(dm));
-      var sunsetH2 = impSunsetH(newDoy);
-      if (typeof sunsetH2 === 'number') {
-        var sdm = impDeltaMin(now, { dayOfYear: newDoy, hour: sunsetH2, minute: 0 });
-        lines.push('  +++ Now widoczny po zachodzie slonca +++');
-        lines.push('    Data RL: ' + formatRealDate(new Date(nowReal.getTime() + sdm * IMP_REAL_MS_PER_GAME_MINUTE)));
-        lines.push('    Zachod:  ' + pad2(sunsetH2) + ':00 IG');
-        lines.push('    Za:      ' + impFormatDelta(sdm));
-      }
+      lines.push('    Data RL: ' + formatRealDate(new Date(nowReal.getTime() + nn.deltaMin * IMP_REAL_MS_PER_GAME_MINUTE)));
+      lines.push('    Za:      ' + impFormatDelta(nn.deltaMin));
+      lines.push('    ' + nnLabel);
     }
 
+    var nowDoy = impNormDoy(now.dayOfYear);
     var fullDoy = IMP_FULL_MOONS_DOY.includes(nowDoy) ? nowDoy : impNextFromList(now, IMP_FULL_MOONS_DOY);
     lines.push('  Pelnia astronomiczna');
     impPushTiming(lines, now, nowReal, fullDoy);

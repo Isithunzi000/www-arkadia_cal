@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "arkadia_cal",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Kalendarz Imperium + Ishtar dla oficjalnego klienta arkadia.rpg.pl",
   "content_scripts": [
     {
