@@ -1,4 +1,4 @@
-// arkadia_cal v1.0.13 | 09-10-2026
+// arkadia_cal v1.0.15 | 09-10-2026
 // Kalendarz Imperium + Ishtar dla oficjalnego klienta arkadia.rpg.pl
 
 (function () {
@@ -12,7 +12,7 @@
     return;
   }
 
-  var EXT_VERSION = '1.0.14';
+  var EXT_VERSION = '1.0.15';
   var EXT_DATE    = '09-10-2026';
   var UPDATE_URL  = 'https://isithunzi000.github.io/www-arkadia_cal/index.json';
 
@@ -570,7 +570,7 @@
     var nn = impComputeNewMoonNight(now, nowReal);
     var nnMd = impMonthDayFromDoy(nn.nightDoy);
     var nnLabel = nnMd ? nnMd.month + ' ' + nnMd.dayOfMonth + ', dzien ' + nn.nightDoy : 'dzien ' + nn.nightDoy;
-    lines.push('  +++ Now widoczny (pierwsza bezksiezycowa noc) +++');
+    lines.push('  +++ Now widoczny +++');
     if (nn.trwa) {
       lines.push('    TRWA TERAZ (do ' + formatRealDate(new Date(nowReal.getTime() + nn.deltaMin * IMP_REAL_MS_PER_GAME_MINUTE)) + ')');
       lines.push('    ' + nnLabel);
