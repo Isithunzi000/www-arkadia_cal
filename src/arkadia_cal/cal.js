@@ -1,4 +1,4 @@
-// arkadia_cal v1.0.15 | 09-10-2026
+// arkadia_cal v1.0.16 | 02-11-2026
 // Kalendarz Imperium + Ishtar dla oficjalnego klienta arkadia.rpg.pl
 
 (function () {
@@ -12,7 +12,7 @@
     return;
   }
 
-  var EXT_VERSION = '1.0.15';
+  var EXT_VERSION = '1.0.16';
   var EXT_DATE    = '09-10-2026';
   var UPDATE_URL  = 'https://isithunzi000.github.io/www-arkadia_cal/index.json';
 
@@ -22,9 +22,18 @@
 
   function pad2(n) { return String(n).padStart(2, '0'); }
 
+  // Etykiety RL zawsze w Europe/Warsaw (niezaleznie od TZ maszyny).
+  var WARSAW_DATE_FORMATTER = new Intl.DateTimeFormat('pl-PL', {
+    timeZone: 'Europe/Warsaw', hourCycle: 'h23',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit'
+  });
   function formatRealDate(d) {
-    return pad2(d.getDate()) + '-' + pad2(d.getMonth() + 1) + '-' + d.getFullYear() +
-           ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    var parts = {};
+    var fps = WARSAW_DATE_FORMATTER.formatToParts(d);
+    for (var i = 0; i < fps.length; i++) parts[fps[i].type] = fps[i].value;
+    return parts.day + '-' + parts.month + '-' + parts.year +
+           ' ' + parts.hour + ':' + parts.minute;
   }
 
   function stripAnsi(s) {
