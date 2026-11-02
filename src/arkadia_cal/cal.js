@@ -202,11 +202,11 @@
   // empirycznie: 11.08.2026 ok. 20:00 = noc pelni 1 Nachgeheim (zachod 19:57 PL).
   // Okno liczone wg zegara EUROPE/WARSAW (przez Intl) - niezaleznie od strefy
   // przegladarki gracza i od zmiany czasu letni/zimowy.
-  var IMP_GN_WINDOW_START_MIN = 19 * 60;
-  var IMP_GN_WINDOW_END_MIN   = 21 * 60;
-  // Prime 20:50 (1250): dane empiryczne 10.2026 - dwie obserwacje
-  // zachodu Mannslieba 20:55 i 20:45 RL. Kanon v3, paritet z dargoth 1.8.27.
-  var IMP_GN_PRIME_MIN        = 1250;
+  var IMP_GN_WINDOW_START_MIN = 20 * 60;
+  var IMP_GN_WINDOW_END_MIN   = 22 * 60;
+  // Prime 21:25 (1285): zmiana okna prime time, faza 11.2026.
+  // Kanon v3, paritet z dargoth 1.8.28.
+  var IMP_GN_PRIME_MIN        = 1285;
   var IMP_GN_SCAN_YEARS       = 4;
   var IMP_GN_CLUSTER_MS       = 180 * 60 * 1000;
 
