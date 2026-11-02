@@ -1,4 +1,4 @@
-// arkadia_cal v1.0.16 | 02-11-2026
+// arkadia_cal v1.0.17 | 02-11-2026
 // Kalendarz Imperium + Ishtar dla oficjalnego klienta arkadia.rpg.pl
 
 (function () {
@@ -12,7 +12,7 @@
     return;
   }
 
-  var EXT_VERSION = '1.0.16';
+  var EXT_VERSION = '1.0.17';
   var EXT_DATE    = '09-10-2026';
   var UPDATE_URL  = 'https://isithunzi000.github.io/www-arkadia_cal/index.json';
 
@@ -567,32 +567,63 @@
     lines.push('');
     lines.push('Najblizsze wydarzenia ksiezycowe:');
 
+    // Kolejnosc wpisow wg faktycznego startu RL (kanon: pełnia moze wypasc
+    // przed nowiem, wiec sztywna kolejnosc byla mylaca). Trwajace wydarzenie
+    // (start w przeszlosci) przed wszystkimi przyszlymi, potem niemalejaco
+    // po dolnym przedziale czasowym.
+    var moonEvents = [];
+
     // Now: moment fazowy = 03:00 IG doby nastepujacej po dobie z tabeli
     // NEW_MOONS (kanon v3, dane empiryczne 10.2026).
     var flip = impComputeNewMoonFlip(now, nowReal);
     var flipReal = new Date(nowReal.getTime() + flip.deltaMin * IMP_REAL_MS_PER_GAME_MINUTE);
-    lines.push('  *** Now astronomiczny ***');
-    lines.push('    Data RL: ' + formatRealDate(flipReal));
-    lines.push('    Za:      ' + impFormatDelta(flip.deltaMin));
+    moonEvents.push({
+      sortKey: flip.deltaMin,
+      lines: [
+        '  *** Now astronomiczny ***',
+        '    Data RL: ' + formatRealDate(flipReal),
+        '    Za:      ' + impFormatDelta(flip.deltaMin),
+      ],
+    });
 
     // Pierwsza bezksiezycowa noc: [zachod(d+1), wschod(d+2)].
     var nn = impComputeNewMoonNight(now, nowReal);
     var nnMd = impMonthDayFromDoy(nn.nightDoy);
     var nnLabel = nnMd ? nnMd.month + ' ' + nnMd.dayOfMonth + ', dzien ' + nn.nightDoy : 'dzien ' + nn.nightDoy;
-    lines.push('  +++ Now widoczny +++');
+    var nnLines = ['  +++ Now widoczny +++'];
     if (nn.trwa) {
-      lines.push('    TRWA TERAZ (do ' + formatRealDate(new Date(nowReal.getTime() + nn.deltaMin * IMP_REAL_MS_PER_GAME_MINUTE)) + ')');
-      lines.push('    ' + nnLabel);
+      nnLines.push('    TRWA TERAZ (do ' + formatRealDate(new Date(nowReal.getTime() + nn.deltaMin * IMP_REAL_MS_PER_GAME_MINUTE)) + ')');
+      nnLines.push('    ' + nnLabel);
     } else {
-      lines.push('    Data RL: ' + formatRealDate(new Date(nowReal.getTime() + nn.deltaMin * IMP_REAL_MS_PER_GAME_MINUTE)));
-      lines.push('    Za:      ' + impFormatDelta(nn.deltaMin));
-      lines.push('    ' + nnLabel);
+      nnLines.push('    Data RL: ' + formatRealDate(new Date(nowReal.getTime() + nn.deltaMin * IMP_REAL_MS_PER_GAME_MINUTE)));
+      nnLines.push('    Za:      ' + impFormatDelta(nn.deltaMin));
+      nnLines.push('    ' + nnLabel);
     }
+    moonEvents.push({ sortKey: nn.trwa ? -1 : nn.deltaMin, lines: nnLines });
 
     var nowDoy = impNormDoy(now.dayOfYear);
     var fullDoy = IMP_FULL_MOONS_DOY.includes(nowDoy) ? nowDoy : impNextFromList(now, IMP_FULL_MOONS_DOY);
-    lines.push('  Pelnia astronomiczna');
-    impPushTiming(lines, now, nowReal, fullDoy);
+    var fullLines = ['  Pelnia astronomiczna'];
+    var fullSortKey;
+    if (impNormDoy(now.dayOfYear) === impNormDoy(fullDoy)) {
+      var minsToEnd = (24 - now.hour) * 60 - now.minute;
+      var endReal = new Date(nowReal.getTime() + minsToEnd * IMP_REAL_MS_PER_GAME_MINUTE);
+      fullLines.push('    Dzis (dzien ' + impNormDoy(fullDoy) + ')');
+      fullLines.push('    TRWA TERAZ (do ' + formatRealDate(endReal) + ')');
+      fullSortKey = -1;
+    } else {
+      var dmFull = impDeltaMin(now, { dayOfYear: fullDoy, hour: 0, minute: 0 });
+      var realFull = new Date(nowReal.getTime() + dmFull * IMP_REAL_MS_PER_GAME_MINUTE);
+      fullLines.push('    Data RL: ' + formatRealDate(realFull));
+      fullLines.push('    Za:      ' + impFormatDelta(dmFull));
+      fullSortKey = dmFull;
+    }
+    moonEvents.push({ sortKey: fullSortKey, lines: fullLines });
+
+    moonEvents.sort(function (a, b) { return a.sortKey - b.sortKey; });
+    moonEvents.forEach(function (ev) {
+      ev.lines.forEach(function (l) { lines.push(l); });
+    });
 
     var other = IMP_INTERCALARY_EVENTS
       .filter(function (ev) { return !ev.name.toLowerCase().includes('hexentag'); })
