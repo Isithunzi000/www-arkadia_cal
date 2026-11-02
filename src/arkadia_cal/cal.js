@@ -12,7 +12,7 @@
     return;
   }
 
-  var EXT_VERSION = '1.0.13';
+  var EXT_VERSION = '1.0.14';
   var EXT_DATE    = '09-10-2026';
   var UPDATE_URL  = 'https://isithunzi000.github.io/www-arkadia_cal/index.json';
 
